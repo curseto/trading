@@ -1,0 +1,12 @@
+아나콘다 단축키
+mode는 command(명령모드) editor(편집모드) 두가지임
+
+명령모드에서 
+a= above에 라인 추가
+b= below에 라인 추가
+dd = delete 라인
+ctrl+enter= 실행후 정지
+shift+enter= 실행후 밑으로 이동
+
+뒤로 되돌리기: edit-> undo cell operation클릭 (ctrl+z 안됨)
+서버 초기화: kernel -> restart kernel

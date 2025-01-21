@@ -1,0 +1,26 @@
+cd/
+conda activate 32bitenv
+jupyter lab
+
+jupyter kernelspec list
+
+set JUPYTER_DATA_DIR=C:\anaconda3\share\jupyter\kernels
+
+python -m ipykernel install --user --name=32bitenv --display-name "Python (32bitenv)"
+python -m ipykernel install --user --name=myenv32 --display-name "Python (myenv32)"
+
+
+set CONDA_FORCE_32BIT=1
+conda activate 32bitenv
+
+
+cmd에서 파이썬 인터프리터 실행방법: python
+cmd에서 가상환경에서 파이썬 인터프리터 실행방법: activate [가상환경이름] 이후 python
+cmd에서 가상환경 비활성화: conda deactivate
+커널 리스트: jupyter kernelspec list
+커널 삭제: jupyter kernelspec remove [커널 이름]
+커널 지정: python -m ipykernel install  --user --name=py39_32 --display-name "Python (py39_32)"
+커널 경로지정하며 생성: python -m ipykernel install --prefix=C:\anaconda3\envs\py39_32\share\jupyter --name=py39_32 --display-name "Python (py39_32)"
+아나콘다의 가상환경 리스트 확인: conda env list
+아나콘다의 어떤 가상환경 삭제하는법: conda remove --name [가상환경 이름] --all
+아나콘다로 설치할수 있는 python version확인: conda search python

@@ -1,0 +1,16 @@
+c\openAPI\openAPI\opcommapi.dll 파일 삭제 실패[183]
+c\openAPI\openAPI\opcomms.dll 파일 삭제 실패 [183]
+
+
+키움증권 홈페이지 -> Open API -> 키움 Open API+게시판
+
+
+버전처리에서 오류가 계속납니다
+c\openAPI\openAPI\opcommapi.dll 파일 삭제 실패[183]
+c\openAPI\openAPI\opcomms.dll 파일 삭제 실패 [183]
+
+자동로그인이 되어있어서 이를 해지하고 시도해 보고자 C\OpenAPI\system\Autologin.dat 파일을 C\OpenAPI\system\Autologin.dat0로 변경하여 작동안하게 하고 버전처리를 시도해봐도 같은 오류가 계속 납니다 이경우 저 opcommapi.dll,opcomms.dll  파일들을 수동으로 삭제 시키고 해야되나요?
+
+
+7025642131 [선물옵션]
+8095239511 [위탁]
