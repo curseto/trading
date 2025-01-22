@@ -1,0 +1,264 @@
+import pandas as pd
+
+import mplfinance as mpf
+
+import matplotlib.pyplot as plt
+
+import time
+
+from pykiwoom.kiwoom import *
+kiwoom = Kiwoom()
+
+kiwoom.CommConnect(block=True)
+print("블록킹 로그인 완료")
+
+# Import the dictionary from TickerDict.py
+
+from TickerDict import tickers  # Correctly imports the tickers variable
+
+ # Use tickers
+종목명 = input("Enter 종목명(e.g., 삼성전자): ")
+date = input("Enter 기준일자 (e.g., 20250119): ")
+if 종목명 in tickers:
+    code = tickers[종목명]
+    print(f"종목명: {종목명}, 종목코드: {tickers[종목명]}")
+else:
+    print(f"종목명 '{종목명}' not found.")
+
+code
+
+df = kiwoom.block_request("opt10086",
+                          종목코드=code,
+                          기준일자=date,
+                          표시구분=1,
+                          output="일별주가요청",
+                          next=1)
+df
+
+
+dfs = []
+df = kiwoom.block_request("opt10086",
+                          종목코드=code,
+                          기준일자=date,
+                          표시구분=1,
+                          output="일별주가요청",
+                          next=1)
+
+dfs.append(df)
+a=0
+while a<2:
+    a = a+1
+    df = kiwoom.block_request("opt10086",
+                          종목코드=code,
+                          기준일자=date,
+                          표시구분=1,
+                          output="일별주가요청",
+                          next=2)
+    dfs.append(df)
+    time.sleep(1)
+    
+df = pd.concat(dfs, ignore_index=True)
+
+
+df = df.drop(columns=["신용비", "개인", "기관", "외인수량", "외국계", "외인비", "외인보유", "외인비중", "신용잔고율"])
+
+df.dtypes
+
+df.dtypes
+
+df.head()
+
+columns_to_replace = ['프로그램','외인순매수','기관순매수','개인순매수']
+df[columns_to_replace] = df[columns_to_replace].replace("--", "-", regex=True)
+df.head()
+
+df.dtypes
+
+# Change the data type of '날짜' to datetime
+df["날짜"] = pd.to_datetime(df["날짜"], format="%Y%m%d")
+
+# Change the data type of '등락률' to float
+df["등락률"] = df["등락률"].astype(float)
+
+# Change all other columns to int
+columns_to_convert = df.columns.difference(["날짜", "등락률"])
+df[columns_to_convert] = df[columns_to_convert].astype(int)
+
+# Divide the values in the "금액" column by 100
+df["금액(백만)"] = df["금액(백만)"] / 100
+# Rename the "금액" column to "금액(억)"
+df.rename(columns={"금액(백만)": "금액(억)"}, inplace=True)
+
+df.dtypes
+
+df
+
+df = df.iloc[::-1].reset_index(drop=True)
+df
+
+df.dtypes
+
+# Rename columns
+df = df.rename(columns={
+    "날짜": "datetime",
+    "시가": "Open",
+    "고가": "High",
+    "저가": "Low",
+    "종가": "Close",
+    "거래량": "Volume",       # Optional if volume is available
+    "전일비": "Change",       # Change compared to the previous day
+    "등락률": "ChangeRate",   # Change rate (percentage)
+    "금액(억)": "TradingValue", # Trading value
+    "프로그램": "Program",    # Program trading
+    "외인순매수": "ForeignNetBuy", # Foreign net buy
+    "기관순매수": "InstitutionNetBuy", # Institution net buy
+    "개인순매수": "IndividualNetBuy"  # Individual net buy
+})
+
+# Check the DataFrame to ensure the columns are renamed correctly
+
+
+
+df.head()
+
+# DataFrame의 인덱스를 날짜로 설정 (mplfinance가 요구하는 포맷)
+df.set_index("datetime", inplace=True)
+
+df.head()
+
+# Apply absolute value transformation to specific columns
+columns_to_transform = ["Open", "High", "Low", "Close"]
+df[columns_to_transform] = df[columns_to_transform].abs()
+
+df.head()
+
+# 2. 봉차트 그리기
+mpf.plot(
+    df,
+    type="candle",  # 봉차트
+    style="charles",  # 스타일 (다양한 스타일 지원)
+    title="Stock Name",  # 차트 제목
+    ylabel="Price",  # y축 라벨
+    volume=False  # 거래량 표시 여부 (False로 설정)
+)
+
+# Custom market colors
+custom_colors = mpf.make_marketcolors(
+    up="red",    # Custom color for up (e.g., blue)
+    down="blue", # Custom color for down (e.g., orange)
+    wick="black",  # Wick color
+    edge="black"   # Edge color
+)
+
+# Custom style with the market colors
+custom_style = mpf.make_mpf_style(
+    marketcolors=custom_colors, 
+    gridcolor="gray",  # Gridline color
+    gridstyle="--"     # Gridline style
+)
+
+
+mpf.plot(
+    df,
+    type="candle",
+    style=custom_style,
+    title="Name",
+    ylabel="Price",
+    volume=True  
+)
+
+
+df.head()
+
+df['10DMA']=df['Close'].rolling(window=10).mean()
+df['20DMA']=df['Close'].rolling(window=20).mean()
+df['10DMA']
+
+# Calculate 10-day and 20-day moving averages
+df["10DMA"] = df["Close"].rolling(window=10).mean()
+df["20DMA"] = df["Close"].rolling(window=20).mean()
+
+# Custom market colors
+custom_colors = mpf.make_marketcolors(
+    up="red",    # Custom color for up (e.g., blue)
+    down="blue", # Custom color for down (e.g., orange)
+    wick="black",  # Wick color
+    edge="black"   # Edge color
+)
+
+# Custom style with the market colors
+custom_style = mpf.make_mpf_style(
+    marketcolors=custom_colors, 
+    gridcolor="gray",  # Gridline color
+    gridstyle="--"     # Gridline style
+)
+
+# Define the additional plots for the moving averages
+add_plots = [
+    mpf.make_addplot(df["10DMA"], color="navy", width=1.0, linestyle="solid"),
+    mpf.make_addplot(df["20DMA"], color="gold", width=2.0, linestyle="solid"),
+    mpf.make_addplot(df["TradingValue"], panel=1, color="gray", type="bar")
+]
+
+
+mpf.plot(
+    df,
+    type="candle",
+    style=custom_style,
+    title="Name",
+    ylabel="Price",
+    ylabel_lower="Trading Value",
+    volume=False,
+    addplot=add_plots,
+)
+
+
+
+import sys
+
+# Print the list of paths
+for path in sys.path:
+    print(path)
+
+
+# Get tickers for KOSPI and KOSDAQ
+kospi_tickers = kiwoom.GetCodeListByMarket("0")  # KOSPI
+kosdaq_tickers = kiwoom.GetCodeListByMarket("10")  # KOSDAQ
+
+# Create dictionaries for stock names and codes
+kospi_dict = {kiwoom.GetMasterCodeName(code): code for code in kospi_tickers}
+kosdaq_dict = {kiwoom.GetMasterCodeName(code): code for code in kosdaq_tickers}
+
+# Combine both dictionaries into one
+all_tickers = {**kospi_dict, **kosdaq_dict}
+
+len(kospi_tickers)
+
+len(kospi_dict)
+
+len(all_tickers)
+
+# Save the dictionary to a Python file
+with open("TickerDict.py", "w", encoding="utf-8") as f:
+    f.write("tickers = {\n")
+    for name, code in all_tickers.items():
+        f.write(f'    "{name}": "{code}",\n')
+    f.write("}\n")
+
+print("TickerDict.py has been created!")
+
+# Let me process and analyze the uploaded notebook to clean and reorganize it.
+import nbformat
+
+# Load the uploaded notebook file
+file_path = 'code.ipynb'
+with open(file_path, 'r', encoding='utf-8') as file:
+    notebook = nbformat.read(file, as_version=4)
+
+# Extract cells to identify unnecessary or unorganized parts
+notebook_cells = notebook['cells']
+notebook_cells
+
+
+
+

@@ -11,10 +11,12 @@ PI = 3.141592
 
 class Math: 
     def solv(self, r): 
-        return PI * (r ** 2) 
+        return PI * (r ** 2)  
 
-def add(a, b): 
-    return a+b 
+# variable generation
+
+x = 1245
+
 
 
 
@@ -22,5 +24,8 @@ if __name__ == "__main__":
     print(add(1, 4))
     print(sub(4, 2))
 
+
     
+    
+
     
