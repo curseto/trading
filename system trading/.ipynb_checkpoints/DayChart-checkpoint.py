@@ -56,7 +56,7 @@ class StockDataProcessor:
             "저가": "Low",
             "종가": "Close",
             "거래량": "Volume",
-            "전일비": "Change",
+            "전일비": "Changes",
             "등락률": "ChangeRate",
             "금액(백만)": "TradingValue",
             "프로그램": "Program",
@@ -89,11 +89,17 @@ class StockDataProcessor:
         custom_colors = mpf.make_marketcolors(up="red", down="blue", wick="black", edge="black")
         custom_style = mpf.make_mpf_style(marketcolors=custom_colors, gridcolor="gray", gridstyle="--")
 
-        add_plots = [
-            mpf.make_addplot(df["10DMA"], color="navy", width=1.0, linestyle="solid"),
-            mpf.make_addplot(df["20DMA"], color="gold", width=2.0, linestyle="solid"),
-            mpf.make_addplot(df["TradingValue"], panel=1, color="gray", type="bar")
-        ]
+        # Check if the DataFrame contains 10DMA and 20DMA columns
+        if "10DMA" in df.columns and "20DMA" in df.columns:
+            add_plots = [
+                mpf.make_addplot(df["10DMA"], color="navy", width=1.0, linestyle="solid"),
+                mpf.make_addplot(df["20DMA"], color="gold", width=2.0, linestyle="solid"),
+                mpf.make_addplot(df["TradingValue"], panel=1, color="gray", type="bar")
+            ]
+        else:
+            add_plots = [
+                mpf.make_addplot(df["TradingValue"], panel=1, color="gray", type="bar")
+            ]
 
         mpf.plot(
             df,

@@ -1,17 +1,21 @@
 import pandas as pd
 import mplfinance as mpf
 import time
+from TickerDict import tickers  
+# Assuming TickerDict.py contains the tickers dictionary
 
 class StockDataProcessor:
-    def __init__(self, kiwoom):
+    def __init__(self, kiwoom, s = tickers):
         self.kiwoom = kiwoom
+        self.tickers = s  # Store tickers as a default attribute
 
-    def get_stock_code(self, stock_name, ticker_dict):
-        """Get the stock code for a given stock name."""
-        return ticker_dict.get(stock_name, None)
+    def get_stock_data(self, stock_name, date, max_requests=2):
+        """Fetch stock data for a given stock name and date."""
+        self.stock_name = stock_name
+        code = self.tickers.get(stock_name, None)  # Use self.tickers by default
+        if not code:
+            raise ValueError(f"Stock name '{stock_name}' not found in tickers.")
 
-    def fetch_stock_data(self, code, date, max_requests=2):
-        """Fetch stock data for a given code and date with multiple requests."""
         dfs = []
         for request_num in range(max_requests):
             next_flag = 1 if request_num == 0 else 2
@@ -42,6 +46,7 @@ class StockDataProcessor:
         df["등락률"] = df["등락률"].astype(float)
         columns_to_convert = df.columns.difference(["날짜", "등락률"])
         df[columns_to_convert] = df[columns_to_convert].astype(int, errors='ignore')
+        df["금액(백만)"] = df["금액(백만)"] / 100
 
         # Rename columns
         df = df.rename(columns={
@@ -51,7 +56,7 @@ class StockDataProcessor:
             "저가": "Low",
             "종가": "Close",
             "거래량": "Volume",
-            "전일비": "Change",
+            "전일비": "Changes",
             "등락률": "ChangeRate",
             "금액(백만)": "TradingValue",
             "프로그램": "Program",
@@ -84,17 +89,23 @@ class StockDataProcessor:
         custom_colors = mpf.make_marketcolors(up="red", down="blue", wick="black", edge="black")
         custom_style = mpf.make_mpf_style(marketcolors=custom_colors, gridcolor="gray", gridstyle="--")
 
-        add_plots = [
-            mpf.make_addplot(df["10DMA"], color="navy", width=1.0, linestyle="solid"),
-            mpf.make_addplot(df["20DMA"], color="gold", width=2.0, linestyle="solid"),
-            mpf.make_addplot(df["TradingValue"], panel=1, color="gray", type="bar")
-        ]
+        # Check if the DataFrame contains 10DMA and 20DMA columns
+        if "10DMA" in df.columns and "20DMA" in df.columns:
+            add_plots = [
+                mpf.make_addplot(df["10DMA"], color="navy", width=1.0, linestyle="solid"),
+                mpf.make_addplot(df["20DMA"], color="gold", width=2.0, linestyle="solid"),
+                mpf.make_addplot(df["TradingValue"], panel=1, color="gray", type="bar")
+            ]
+        else:
+            add_plots = [
+                mpf.make_addplot(df["TradingValue"], panel=1, color="gray", type="bar")
+            ]
 
         mpf.plot(
             df,
             type="candle",
             style=custom_style,
-            title="Stock Candlestick Chart",
+            title="name",
             ylabel="Price",
             ylabel_lower="Trading Value",
             volume=False,

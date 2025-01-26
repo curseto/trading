@@ -24,3 +24,14 @@ cmd에서 가상환경 비활성화: conda deactivate
 아나콘다의 가상환경 리스트 확인: conda env list
 아나콘다의 어떤 가상환경 삭제하는법: conda remove --name [가상환경 이름] --all
 아나콘다로 설치할수 있는 python version확인: conda search python
+
+
+Git
+
+
+cd \workspace
+git init
+git add .
+git status
+git commit -m "20250123"
+git push origin master
